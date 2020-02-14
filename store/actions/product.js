@@ -6,7 +6,8 @@ export const UPDATE_PRODUCT = "UPDATE_PRODUCT";
 export const SET_PRODUCTS = "SET_PRODUCTS";
 
 export const fetchProducts = () => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const userId = getState().auth.userId;
     try {
       const response = await fetch(
         "https://sosa-shop.firebaseio.com/products.json",
@@ -24,12 +25,17 @@ export const fetchProducts = () => {
       const products = [];
 
       for (const productId in data) {
-        const { title, imageUrl, description, price } = data[productId];
+        const { title, imageUrl, description, price, userId } = data[productId];
         products.push(
-          new Product(productId, "u1", title, imageUrl, description, price)
+          new Product(productId, userId, title, imageUrl, description, price)
         );
       }
-      dispatch({ type: SET_PRODUCTS, products });
+
+      dispatch({
+        type: SET_PRODUCTS,
+        products,
+        userProducts: products.filter(p => p.ownerId === userId)
+      });
     } catch (err) {
       throw err;
     }
@@ -37,10 +43,11 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = productId => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
     try {
       const response = await fetch(
-        `https://sosa-shop.firebaseio.com/products/${productId}.json`,
+        `https://sosa-shop.firebaseio.com/products/${productId}.json?auth=${token}`,
         {
           method: "DELETE"
         }
@@ -56,29 +63,35 @@ export const deleteProduct = productId => {
 };
 
 export const createProduct = details => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
     const response = await fetch(
-      "https://sosa-shop.firebaseio.com/products.json",
+      `https://sosa-shop.firebaseio.com/products.json?auth=${token}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(details)
+        body: JSON.stringify({ ...details, userId })
       }
     );
 
     const data = await response.json();
 
-    dispatch({ type: CREATE_PRODUCT, details: { ...details, id: data.name } });
+    dispatch({
+      type: CREATE_PRODUCT,
+      details: { ...details, id: data.name, userId }
+    });
   };
 };
 
 export const updateProduct = details => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
     try {
       const response = await fetch(
-        `https://sosa-shop.firebaseio.com/products/${details.id}.json`,
+        `https://sosa-shop.firebaseio.com/products/${details.id}.json?auth=${token}`,
         {
           method: "PATCH",
           headers: {

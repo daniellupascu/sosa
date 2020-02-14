@@ -4,10 +4,11 @@ export const ADD_ORDER = "ADD_ORDER";
 export const SET_ORDERS = "ADD_ORDER";
 
 export const fetchOrders = () => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const userId = getState().auth.userId;
     try {
       const response = await fetch(
-        "https://sosa-shop.firebaseio.com/orders.json",
+        `https://sosa-shop.firebaseio.com/orders/${userId}.json`,
         {
           method: "GET"
         }
@@ -31,10 +32,12 @@ export const fetchOrders = () => {
 };
 
 export const addOrder = (items, total) => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
     const date = new Date();
     const response = await fetch(
-      "https://sosa-shop.firebaseio.com/orders.json",
+      `https://sosa-shop.firebaseio.com/orders/${userId}.json?auth=${token}`,
       {
         method: "POST",
         headers: {

@@ -1,5 +1,17 @@
+import { AsyncStorage } from "react-native";
+
 export const SIGNUP = "SIGNUP";
 export const LOGIN = "LOGIN";
+export const AUTHENTICATE = "AUTHENTICATE";
+export const LOGOUT = "LOGOUT";
+
+export const authenticate = (userId, token) => {
+  return { type: AUTHENTICATE, userId, token };
+};
+
+export const logout = () => {
+  return { type: LOGOUT };
+};
 
 export const signup = (email, password) => {
   return async dispatch => {
@@ -36,7 +48,17 @@ export const signup = (email, password) => {
 
       const resData = await res.json();
 
-      dispatch({ type: SIGNUP, email, password });
+      // dispatch({ type: SIGNUP, data: resData });
+      dispatch(authenticate(resData.localId, resData.idToken));
+
+      const expirationDate = new Date(
+        new Date().getTime() + +resData.expiresIn * 1000
+      );
+      saveDataToStorage(
+        resData.idToken,
+        resData.localId,
+        expirationDate.toISOString()
+      );
     } catch (err) {
       throw err;
     }
@@ -80,9 +102,30 @@ export const login = (email, password) => {
 
       const resData = await res.json();
 
-      dispatch({ type: LOGIN, email, password });
+      // dispatch({ type: LOGIN, data: resData });
+      dispatch(authenticate(resData.localId, resData.idToken));
+
+      const expirationDate = new Date(
+        new Date().getTime() + +resData.expiresIn * 1000
+      );
+      saveDataToStorage(
+        resData.idToken,
+        resData.localId,
+        expirationDate.toISOString()
+      );
     } catch (err) {
       throw err;
     }
   };
+};
+
+const saveDataToStorage = (token, userId, expirationDate) => {
+  AsyncStorage.setItem(
+    "userData",
+    JSON.stringify({
+      token,
+      userId,
+      expirationDate
+    })
+  );
 };

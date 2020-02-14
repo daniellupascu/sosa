@@ -36,10 +36,11 @@ const AuthScreen = props => {
       await dispatch(
         isSigninIn ? login(email, password) : signup(email, password)
       );
+      props.navigation.navigate("ShopDrawerNavigator");
     } catch (err) {
       setError(err.message);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
