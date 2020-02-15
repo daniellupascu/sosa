@@ -17,14 +17,16 @@ const StartupScreen = props => {
       const userData = JSON.parse(await AsyncStorage.getItem("userData"));
       if (!userData) {
         props.navigation.navigate("Auth");
+      } else {
+        let { token, userId, expirationDate } = userData;
+        expirationDate = new Date(expirationDate);
+        if (expirationDate <= new Date() || !token || !userId) {
+          props.navigation.navigate("Auth");
+        }
+        props.navigation.navigate("ShopDrawerNavigator");
+        const expirationTime = expirationDate.getTime() - new Date().getTime();
+        dispatch(authenticate(userId, token, expirationTime));
       }
-      let { token, userId, expirationDate } = userData;
-      expirationDate = new Date(expirationDate);
-      if (expirationDate <= new Date() || !token || !userId) {
-        props.navigation.navigate("Auth");
-      }
-      props.navigation.navigate("ShopDrawerNavigator");
-      dispatch(authenticate(userId, token));
     };
     tryLogin();
   }, [dispatch]);

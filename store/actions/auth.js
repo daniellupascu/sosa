@@ -1,23 +1,44 @@
 import { AsyncStorage } from "react-native";
 
+import Credentials from "../../constants/credentials";
+
 export const SIGNUP = "SIGNUP";
 export const LOGIN = "LOGIN";
 export const AUTHENTICATE = "AUTHENTICATE";
 export const LOGOUT = "LOGOUT";
 
-export const authenticate = (userId, token) => {
-  return { type: AUTHENTICATE, userId, token };
+let timer;
+
+export const authenticate = (userId, token, expirationTime) => {
+  return dispatch => {
+    dispatch(setLogoutTimer(expirationTime));
+    dispatch({ type: AUTHENTICATE, userId, token });
+  };
 };
 
 export const logout = () => {
+  clearLogoutTimer();
+  AsyncStorage.removeItem("userData");
   return { type: LOGOUT };
+};
+
+const clearLogoutTimer = () => {
+  if (timer) clearTimeout(timer);
+};
+
+const setLogoutTimer = expirationTime => {
+  return dispatch => {
+    timer = setTimeout(() => {
+      dispatch(logout());
+    }, expirationTime);
+  };
 };
 
 export const signup = (email, password) => {
   return async dispatch => {
     try {
       const res = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCMogAYBpZcwk6MIpLQ5NGdNZEQWSS5F-g",
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${Credentials.firebaseKey}`,
         {
           method: "POST",
           headers: {
@@ -49,7 +70,13 @@ export const signup = (email, password) => {
       const resData = await res.json();
 
       // dispatch({ type: SIGNUP, data: resData });
-      dispatch(authenticate(resData.localId, resData.idToken));
+      dispatch(
+        authenticate(
+          resData.localId,
+          resData.idToken,
+          parseInt(resData.expiresIn) * 1000
+        )
+      );
 
       const expirationDate = new Date(
         new Date().getTime() + +resData.expiresIn * 1000
@@ -69,7 +96,7 @@ export const login = (email, password) => {
   return async dispatch => {
     try {
       const res = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCMogAYBpZcwk6MIpLQ5NGdNZEQWSS5F-g",
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${Credentials.firebaseKey}`,
         {
           method: "POST",
           headers: {
@@ -103,7 +130,13 @@ export const login = (email, password) => {
       const resData = await res.json();
 
       // dispatch({ type: LOGIN, data: resData });
-      dispatch(authenticate(resData.localId, resData.idToken));
+      dispatch(
+        authenticate(
+          resData.localId,
+          resData.idToken,
+          parseInt(resData.expiresIn) * 1000
+        )
+      );
 
       const expirationDate = new Date(
         new Date().getTime() + +resData.expiresIn * 1000
