@@ -106,8 +106,14 @@ const styles = StyleSheet.create({
   }
 });
 
-CartScreen.navigationOptions = {
-  headerTitle: "Cart"
+export const cartNavOptions = () => {
+  return {
+    headerTitle: "Cart"
+  };
 };
+
+// CartScreen.navigationOptions = {
+//   headerTitle: "Cart"
+// };
 
 export default CartScreen;

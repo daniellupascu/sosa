@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   screen: {}
 });
 
-UserProductsScreen.navigationOptions = ({ navigation }) => {
+export const userProductsNavOptions = ({ navigation }) => {
   return {
     headerTitle: "Your Products",
     headerLeft: () => (

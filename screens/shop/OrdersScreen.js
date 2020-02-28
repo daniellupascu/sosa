@@ -41,8 +41,8 @@ const OrdersScreen = props => {
   }, [loadOrders]);
 
   useEffect(() => {
-    const willFocus = props.navigation.addListener("willFocus", loadOrders);
-    return () => willFocus.remove();
+    const unsubscribe = props.navigation.addListener("focus", loadOrders);
+    return () => unsubscribe();
   }, [loadOrders]);
 
   if (isLoading)
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   loader: { flex: 1, justifyContent: "center", alignItems: "center" }
 });
 
-OrdersScreen.navigationOptions = ({ navigation }) => {
+export const ordersNavOptions = ({ navigation }) => {
   return {
     headerTitle: "Your Orders",
     headerLeft: () => (

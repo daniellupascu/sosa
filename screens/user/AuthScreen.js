@@ -36,7 +36,6 @@ const AuthScreen = props => {
       await dispatch(
         isSigninIn ? login(email, password) : signup(email, password)
       );
-      props.navigation.navigate("ShopDrawerNavigator");
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
@@ -93,7 +92,7 @@ const AuthScreen = props => {
   );
 };
 
-AuthScreen.navigationOptions = ({ navigation }) => {
+export const authNavOptions = ({ navigation }) => {
   return {
     headerTitle: "sosa - fashion in the pocket "
   };

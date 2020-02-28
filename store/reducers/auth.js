@@ -1,34 +1,30 @@
-import { LOGIN, SIGNUP, AUTHENTICATE, LOGOUT } from "../actions/auth";
+import { AUTHENTICATE, LOGOUT, SET_DID_TRY_AUTO_LOGIN } from "../actions/auth";
 
 const initialState = {
   token: null,
-  userId: null
+  userId: null,
+  didTryAutoLogin: false
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case SET_DID_TRY_AUTO_LOGIN:
+      return {
+        ...state,
+        didTryAutoLogin: true
+      };
     case AUTHENTICATE:
       return {
         ...state,
         token: action.token,
-        userId: action.userId
+        userId: action.userId,
+        didTryAutoLogin: true
       };
     case LOGOUT:
       return {
-        ...initialState
+        ...initialState,
+        didTryAutoLogin: true
       };
-    // case LOGIN:
-    //   return {
-    //     ...state,
-    //     token: action.data.idToken,
-    //     userId: action.data.localId
-    //   };
-    // case SIGNUP:
-    //   return {
-    //     ...state,
-    //     token: action.data.idToken,
-    //     userId: action.data.localId
-    //   };
     default:
       return state;
   }

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   FlatList,
-  Image,
   Platform,
   ActivityIndicator,
   View,
@@ -48,8 +47,8 @@ const ProductsOverviewScreen = props => {
   }, [dispatch, loadProducts]);
 
   useEffect(() => {
-    const willFocus = props.navigation.addListener("willFocus", loadProducts);
-    return () => willFocus.remove();
+    const unsubscribe = props.navigation.addListener("focus", loadProducts);
+    return () => unsubscribe();
   }, [loadProducts]);
 
   const addItemToCart = item => {
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
   loader: { flex: 1, justifyContent: "center", alignItems: "center" }
 });
 
-ProductsOverviewScreen.navigationOptions = ({ navigation }) => {
+export const productsOverviewNavOptions = ({ navigation }) => {
   return {
     headerTitle: "All Products",
     headerRight: () => (

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Platform,
@@ -47,7 +46,8 @@ const formReducer = (state, action) => {
 const EditProductScreen = props => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
-  const itemToEdit = props.navigation.getParam("item");
+
+  const itemToEdit = props.route.params ? props.route.params.item : null;
 
   const [formState, dispatchFormState] = useReducer(formReducer, {
     inputValues: {
@@ -106,8 +106,21 @@ const EditProductScreen = props => {
   }, [dispatch, itemToEdit, formState]);
 
   useEffect(() => {
-    props.navigation.setParams({ submit: submitHandler });
-  }, [submitHandler]);
+    props.navigation.setOptions({
+      headerTitle: itemToEdit ? `Edit ${itemToEdit.title}` : "Add Product",
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+          <Item
+            title="Save Item"
+            iconName={
+              Platform.OS === "android" ? "md-checkmark" : "ios-checkmark"
+            }
+            onPress={submitHandler}
+          />
+        </HeaderButtons>
+      )
+    });
+  }, [submitHandler, itemToEdit]);
 
   useEffect(() => {
     if (error) {
@@ -207,23 +220,8 @@ const styles = StyleSheet.create({
   }
 });
 
-EditProductScreen.navigationOptions = ({ navigation }) => {
-  const itemToEdit = navigation.getParam("item");
-  const submitHandler = navigation.getParam("submit");
-  return {
-    headerTitle: itemToEdit ? `Edit ${itemToEdit.title}` : "Add Product",
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-        <Item
-          title="Save Item"
-          iconName={
-            Platform.OS === "android" ? "md-checkmark" : "ios-checkmark"
-          }
-          onPress={submitHandler}
-        />
-      </HeaderButtons>
-    )
-  };
+export const editProductNavOptions = navData => {
+  return {};
 };
 
 export default EditProductScreen;

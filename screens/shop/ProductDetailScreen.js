@@ -1,19 +1,13 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Text,
-  Image,
-  Button
-} from "react-native";
+import { StyleSheet, ScrollView, Text, Image } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../store/actions/cart";
 
 const ProductDetailScreen = props => {
-  const item = props.navigation.getParam("item");
+  const item = props.route.params ? props.route.params.item : null;
+
   const dispatch = useDispatch();
   return (
     <ScrollView style={styles.productContainer}>
@@ -53,8 +47,8 @@ const styles = StyleSheet.create({
   }
 });
 
-ProductDetailScreen.navigationOptions = navData => {
-  return { headerTitle: navData.navigation.getParam("item").title };
+export const productsDetailsNavOptions = navData => {
+  return { headerTitle: navData.route.params.item.title };
 };
 
 export default ProductDetailScreen;
